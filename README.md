@@ -48,3 +48,10 @@ Duplicate `(source, event)` keys are rejected at construction time, because two 
 The `state` attribute is a plain instance variable and is intentionally assignable. Forcing transitions through `trigger` alone is good discipline, but in practice machines sometimes need to be coerced (for error recovery, for replaying a checkpoint, or in tests). Rather than provide a separate `force_state` method with its own policy, the attribute is left writable. If you want encapsulation, wrap the machine.
 
 A machine with `initial_state=None` is not running; calling `trigger` on it raises `StateError`, not `TransitionError`. The distinction is that the machine has not been told where to start, so the failure is one of configuration, not of transition logic.
+
+## Performance
+
+The window keeps a bounded buffer, so `push` is constant time and memory does not
+grow with the length of the stream. `peak` and `trough` are linear in the window
+size, which is the trade that keeps `push` cheap.
+
